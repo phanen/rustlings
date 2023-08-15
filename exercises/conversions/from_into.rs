@@ -38,8 +38,7 @@ impl Default for Person {
 // I AM NOT DONE
 
 impl From<&str> for Person {
-    fn from(s: &str) -> Person {
-    }
+    fn from(s: &str) -> Person {}
 }
 
 fn main() {
