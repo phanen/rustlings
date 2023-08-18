@@ -7,12 +7,12 @@ progress
 - [x] enums
 - [x] error_handling
 - [x] functions
-- [ ] generics
+- [x] generics
 - [x] hashmaps
 - [x] if
 - [x] intro
-- [ ] iterators
-- [ ] lifetimes
+- [x] iterators
+- [x] lifetimes
 - [ ] macros
 - [x] modules
 - [x] move_semantics
@@ -21,11 +21,11 @@ progress
 - [ ] smart_pointers
 - [x] strings
 - [x] structs
-- [ ] tests
+- [x] tests
 - [ ] threads
-- [ ] traits
+- [x] traits
 - [x] variables
 - [x] vecs
 - [x] quiz1.rs
 - [x] quiz2.rs
-- [ ] quiz3.rs
+- [x] quiz3.rs
