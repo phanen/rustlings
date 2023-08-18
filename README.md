@@ -4,28 +4,28 @@
 progress
 - [ ] clippy
 - [ ] conversions
-- [-] enums
-- [ ] error_handling
-- [X] functions
+- [x] enums
+- [x] error_handling
+- [x] functions
 - [ ] generics
-- [ ] hashmaps
-- [X] if
-- [X] intro
+- [x] hashmaps
+- [x] if
+- [x] intro
 - [ ] iterators
 - [ ] lifetimes
 - [ ] macros
-- [ ] modules
-- [ ] move_semantics
-- [ ] options
-- [X] primitive_types
+- [x] modules
+- [x] move_semantics
+- [x] options
+- [x] primitive_types
 - [ ] smart_pointers
-- [ ] strings
-- [X] structs
+- [x] strings
+- [x] structs
 - [ ] tests
 - [ ] threads
 - [ ] traits
-- [X] variables
-- [X] vecs
-- [X] quiz1.rs
-- [ ] quiz2.rs
+- [x] variables
+- [x] vecs
+- [x] quiz1.rs
+- [x] quiz2.rs
 - [ ] quiz3.rs
