@@ -23,8 +23,6 @@ impl AppendBar for Vec<String> {
     }
 }
 
-// TODO: Implement trait `AppendBar` for a vector of strings.
-
 #[cfg(test)]
 mod tests {
     use super::*;

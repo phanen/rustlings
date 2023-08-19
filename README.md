@@ -2,8 +2,8 @@
 > upstream: <https://github.com/rust-lang/rustlings>
 
 progress
-- [ ] clippy
-- [ ] conversions
+- [x] clippy
+- [x] conversions
 - [x] enums
 - [x] error_handling
 - [x] functions
@@ -13,16 +13,16 @@ progress
 - [x] intro
 - [x] iterators
 - [x] lifetimes
-- [ ] macros
+- [x] macros
 - [x] modules
 - [x] move_semantics
 - [x] options
 - [x] primitive_types
-- [ ] smart_pointers
+- [x] smart_pointers
 - [x] strings
 - [x] structs
 - [x] tests
-- [ ] threads
+- [x] threads
 - [x] traits
 - [x] variables
 - [x] vecs
