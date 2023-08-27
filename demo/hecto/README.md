@@ -13,3 +13,6 @@ fn to_ctrl_byte(c: char) -> u8 {
 ```
 
 cargo clippy
+
+
+terminal protocol
