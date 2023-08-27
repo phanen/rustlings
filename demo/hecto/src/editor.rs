@@ -44,21 +44,29 @@ impl Editor {
         Ok(())
     }
 
+    fn read_key() -> Result<Key, std::io::Error> {
+        loop {
+            if let Some(key) = io::stdin().lock().keys().next() {
+                return key;
+            }
+        }
+    }
+
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         // protocol? CSI sequence
         // print!("\x1b[2J");
         print!("{}{}", termion::clear::All, termion::cursor::Goto(1, 1));
         if self.should_quit {
             println!("Goodbye.\r");
+        } else {
+            self.draw_rows(24 as usize);
         }
         io::stdout().flush()
     }
 
-    fn read_key() -> Result<Key, std::io::Error> {
-        loop {
-            if let Some(key) = io::stdin().lock().keys().next() {
-                return key;
-            }
+    fn draw_rows(&self, r: usize) {
+        for _ in 0..r {
+            println!("~\r");
         }
     }
 }
