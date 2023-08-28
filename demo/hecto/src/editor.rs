@@ -118,7 +118,7 @@ impl Editor {
         // let height = size.height.saturating_sub(1) as usize;
         // let width = size.width.saturating_sub(1) as usize;
         let height = self.document.len();
-        let width = if let Some(row) = self.document.row(y) {
+        let mut width = if let Some(row) = self.document.row(y) {
             row.len()
         } else {
             0
@@ -138,11 +138,22 @@ impl Editor {
                 }
             }
             Key::Char('H') => y = 0,
-            Key::Char('L') => y = height,
+            Key::Char('L') => y = height - 1,
             Key::Char('^') => x = 0,
             Key::Char('$') => x = width,
             _ => (),
         }
+
+        // limit x in new width (y change -> width change)
+        width = if let Some(row) = self.document.row(y) {
+            row.len()
+        } else {
+            0
+        };
+        if x > width {
+            x = width
+        }
+
         self.cursor_position = Position { x, y };
     }
 
@@ -190,13 +201,14 @@ impl Editor {
 
         for row_id in 0..rows {
             Terminal::clear_current_line();
-            if let Some(row) = self.document.row(self.offset.y + row_id) {
+
+            if let Some(row) = self.document.row(self.offset.y.saturating_add(row_id)) {
                 self.draw_row(row)
             } else {
                 if row_id == rows - 1 {
-                    println!("~\r");
+                    print!("~\r");
                 } else {
-                    print!("~");
+                    println!("~\r");
                 }
             }
         }
