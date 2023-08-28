@@ -1,11 +1,15 @@
+use crate::Document;
+use crate::Row;
 use crate::Terminal;
 
+use std::env;
 use termion::event::Key;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// 0-index
+#[derive(Default)]
 pub struct Position {
+    // 0-indexed
     pub x: usize,
     pub y: usize,
 }
@@ -14,6 +18,7 @@ pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
     cursor_position: Position,
+    document: Document,
 }
 
 impl Editor {
@@ -34,10 +39,24 @@ impl Editor {
     }
 
     pub fn default() -> Self {
+        // let args: Vec<String> = env::args().collect();
+        //
+        // let document = if args.len() > 1 {
+        //     let file_name = &args[1];
+        //     Document::open(file_name).unwrap_or_default()
+        // } else {
+        //     Document::default()
+        // };
+
+        env::args().next().unwrap();
+        let filename = env::args().next().unwrap_or_default();
+        let document = Document::open(&filename).unwrap_or_default();
+
         Self {
             should_quit: false,
             terminal: Terminal::default().expect("failed to init terminal"),
-            cursor_position: Position { x: 0, y: 0 },
+            cursor_position: Position::default(),
+            document,
         }
     }
 
@@ -93,7 +112,7 @@ impl Editor {
     // update cursor position
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
-        Terminal::cursor_position(&Position { x: 0, y: 0 });
+        Terminal::cursor_position(&Position::default());
 
         if self.should_quit {
             Terminal::clear_screen();
@@ -107,12 +126,30 @@ impl Editor {
         Terminal::flush()
     }
 
+    fn draw_row(&self, row: &Row) {
+        let start = 0;
+        let end = self.terminal.size().width as usize;
+        let row = row.render(start, end);
+        println!("{}\r", row);
+    }
+
     // clear and redraw
-    fn draw_rows(&self, r: usize) {
-        for row in 0..r - 1 {
+    fn draw_rows(&self, rows: usize) {
+        // if self.document.is_empty() {
+        //     for row_id in 0..rows - 1 {
+        //         Terminal::clear_current_line();
+        //         if row_id == rows / 3 {
+        //             self.draw_welcome_msg(self.terminal.size().width.into());
+        //         } else {
+        //             println!("~\r");
+        //         }
+        //     }
+        // }
+
+        for row_id in 0..rows - 1 {
             Terminal::clear_current_line();
-            if row == r / 3 {
-                self.draw_welcome_msg(self.terminal.size().width.into());
+            if let Some(row) = self.document.row(row_id) {
+                self.draw_row(row)
             } else {
                 println!("~\r");
             }
