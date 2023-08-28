@@ -52,16 +52,17 @@ impl Editor {
         if self.should_quit {
             println!("Goodbye.\r");
         } else {
-            self.draw_rows(24 as usize);
+            self.draw_rows(self.terminal.size().height as usize);
             Terminal::cursor_position(0, 0);
         }
         Terminal::flush()
     }
 
     fn draw_rows(&self, r: usize) {
-        for _ in 0..r {
+        for _ in 0..r - 1 {
             println!("~\r");
         }
+        print!("~");
     }
 }
 
