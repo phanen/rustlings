@@ -172,15 +172,18 @@ impl Editor {
         //     }
         // }
 
-        for row_id in 0..rows - 1 {
+        for row_id in 0..rows {
             Terminal::clear_current_line();
             if let Some(row) = self.document.row(self.offset.y + row_id) {
                 self.draw_row(row)
             } else {
-                println!("~\r");
+                if row_id == rows - 1 {
+                    println!("~\r");
+                } else {
+                    print!("~");
+                }
             }
         }
-        print!("~");
     }
 
     fn draw_welcome_msg(&self, line_width: usize) {
