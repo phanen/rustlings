@@ -2,6 +2,8 @@ use crate::Terminal;
 
 use termion::event::Key;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
@@ -63,11 +65,27 @@ impl Editor {
 
     // clear and redraw
     fn draw_rows(&self, r: usize) {
-        for _ in 0..r - 1 {
+        for row in 0..r - 1 {
             Terminal::clear_current_line();
-            println!("~\r");
+            if row == r / 3 {
+                self.draw_welcome_msg(self.terminal.size().width.into());
+            } else {
+                println!("~\r");
+            }
         }
         print!("~");
+    }
+
+    fn draw_welcome_msg(&self, line_width: usize) {
+        let welcome_msg = format!("Hecto editor -- version {}", VERSION);
+        let max_width = std::cmp::max(line_width, welcome_msg.len());
+        let pad_len = (max_width - welcome_msg.len()) / 2;
+        println!(
+            "~{}{}{}\r",
+            " ".repeat(pad_len - 1),
+            &welcome_msg,
+            " ".repeat(pad_len)
+        );
     }
 }
 
