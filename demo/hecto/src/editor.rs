@@ -25,14 +25,16 @@ pub struct Editor {
 impl Editor {
     pub fn run(&mut self) {
         loop {
-            if let Err(error) = self.refresh_screen() {
-                die(&error);
-            }
-
             if self.should_quit {
                 break;
             }
 
+            // render screen based on current state
+            if let Err(error) = self.refresh_screen() {
+                die(&error);
+            }
+
+            // get key, update to next state
             if let Err(error) = self.process_keypress() {
                 die(&error);
             }
@@ -153,9 +155,13 @@ impl Editor {
             Terminal::clear_screen();
             println!("Goodbye.\r");
         } else {
-            // clear and redraw
+            // clear and redraw (make a absoulte cursor pos)
             self.draw_rows(self.terminal.size().height as usize);
-            Terminal::cursor_position(&self.cursor_position);
+            // transform absoulte cursor pos back to relative cursor pos
+            Terminal::cursor_position(&Position {
+                x: self.cursor_position.x.saturating_sub(self.offset.x),
+                y: self.cursor_position.y.saturating_sub(self.offset.y),
+            })
         }
         Terminal::cursor_show();
         Terminal::flush()
