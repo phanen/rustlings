@@ -1,6 +1,11 @@
 ## ref
 https://www.flenker.blog/hecto/
 
+## overview
+- `document.rs`: file open, column handler
+- `editor.rs`: core logic
+- `row.rs`: line handler
+- `terminal.rs`: wrap tui api
 
 ## basics
 
@@ -13,7 +18,6 @@ fn to_ctrl_byte(c: char) -> u8 {
 ```
 
 cargo clippy
-
 
 terminal protocol
 
