@@ -4,6 +4,7 @@ use termion::event::Key;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+// 0-index
 pub struct Position {
     pub x: usize,
     pub y: usize,
@@ -56,12 +57,25 @@ impl Editor {
 
     fn move_cursor(&mut self, key: Key) {
         let Position { mut x, mut y } = self.cursor_position;
-        // TODO: left and down bound
+
+        let size = self.terminal.size();
+        // we need 0-index form here
+        let height = size.height.saturating_sub(1) as usize;
+        let width = size.width.saturating_sub(1) as usize;
+
         match key {
             Key::Char('h') => x = x.saturating_sub(1),
-            Key::Char('j') => y = y.saturating_add(1),
+            Key::Char('j') => {
+                if y < height {
+                    y = y.saturating_add(1);
+                }
+            }
             Key::Char('k') => y = y.saturating_sub(1),
-            Key::Char('l') => x = x.saturating_add(1),
+            Key::Char('l') => {
+                if x < width {
+                    x = x.saturating_add(1);
+                }
+            }
             _ => (),
         }
         self.cursor_position = Position { x, y };
