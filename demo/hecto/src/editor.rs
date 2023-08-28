@@ -47,12 +47,13 @@ impl Editor {
 
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
-        Terminal::clear_screen();
         Terminal::cursor_position(0, 0);
 
         if self.should_quit {
+            Terminal::clear_screen();
             println!("Goodbye.\r");
         } else {
+            // clear and redraw
             self.draw_rows(self.terminal.size().height as usize);
             Terminal::cursor_position(0, 0);
         }
@@ -60,8 +61,10 @@ impl Editor {
         Terminal::flush()
     }
 
+    // clear and redraw
     fn draw_rows(&self, r: usize) {
         for _ in 0..r - 1 {
+            Terminal::clear_current_line();
             println!("~\r");
         }
         print!("~");

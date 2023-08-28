@@ -36,6 +36,10 @@ impl Terminal {
         print!("{}", termion::clear::All);
     }
 
+    pub fn clear_current_line() {
+        print!("{}", termion::clear::CurrentLine);
+    }
+
     pub fn flush() -> Result<(), std::io::Error> {
         io::stdout().flush()
     }
