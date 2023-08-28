@@ -46,9 +46,14 @@ impl Editor {
         match pressed_key {
             // by default, it will print to io buffer
             // Key::Char(c) => print!("{}\r", c as u8),
-            Key::Char('h') | Key::Char('j') | Key::Char('k') | Key::Char('l') => {
-                self.move_cursor(pressed_key)
-            }
+            Key::Char('h')
+            | Key::Char('j')
+            | Key::Char('k')
+            | Key::Char('l')
+            | Key::Char('H')
+            | Key::Char('L')
+            | Key::Char('^')
+            | Key::Char('$') => self.move_cursor(pressed_key),
             Key::Ctrl('q') => self.should_quit = true,
             _ => (),
         }
@@ -76,6 +81,10 @@ impl Editor {
                     x = x.saturating_add(1);
                 }
             }
+            Key::Char('H') => y = 0,
+            Key::Char('L') => y = height,
+            Key::Char('^') => x = 0,
+            Key::Char('$') => x = width,
             _ => (),
         }
         self.cursor_position = Position { x, y };
