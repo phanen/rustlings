@@ -49,8 +49,9 @@ impl Editor {
         //     Document::default()
         // };
 
-        env::args().next().unwrap();
-        let filename = env::args().next().unwrap_or_default();
+        let mut args = env::args();
+        args.next().unwrap();
+        let filename = args.next().unwrap_or_default();
         let document = Document::open(&filename).unwrap_or_default();
 
         Self {
