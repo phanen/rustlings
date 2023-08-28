@@ -80,7 +80,7 @@ impl Editor {
             Key::Ctrl('q') => self.should_quit = true,
             _ => (),
         }
-        // scroll or not based on cursor position
+        // scroll or not, based on cursor position
         self.scroll();
         Ok(())
     }
@@ -92,25 +92,35 @@ impl Editor {
         let width = size.width as usize;
 
         let offset = &mut self.offset;
-        if y < offset.y {
+        if y >= offset.y.saturating_add(height) {
+            // down overflow
+            offset.y = y.saturating_sub(height).saturating_add(1);
+        } else if y < offset.y {
+            // up overflow
             offset.y = y;
-        } else if y >= offset.y.saturating_add(height) {
-            offset.y = y.saturating_sub(height);
         }
-        if x < offset.x {
+
+        if x >= offset.x.saturating_add(width) {
+            // right overflow
+            offset.x = x.saturating_sub(width).saturating_add(1);
+        } else if x < offset.x {
+            // left overflow
             offset.x = x;
-        } else if x >= offset.x.saturating_add(width) {
-            offset.x = x.saturating_sub(width);
         }
     }
 
     fn move_cursor(&mut self, key: Key) {
         let Position { mut x, mut y } = self.cursor_position;
 
-        let size = self.terminal.size();
-        // we need 0-index form here
-        let height = size.height.saturating_sub(1) as usize;
-        let width = size.width.saturating_sub(1) as usize;
+        // let size = self.terminal.size();
+        // let height = size.height.saturating_sub(1) as usize;
+        // let width = size.width.saturating_sub(1) as usize;
+        let height = self.document.len();
+        let width = if let Some(row) = self.document.row(y) {
+            row.len()
+        } else {
+            0
+        };
 
         match key {
             Key::Char('h') => x = x.saturating_sub(1),
