@@ -4,9 +4,15 @@ use termion::event::Key;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+pub struct Position {
+    pub x: usize,
+    pub y: usize,
+}
+
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
+    cursor_position: Position,
 }
 
 impl Editor {
@@ -30,6 +36,7 @@ impl Editor {
         Self {
             should_quit: false,
             terminal: Terminal::default().expect("failed to init terminal"),
+            cursor_position: Position { x: 0, y: 0 },
         }
     }
 
@@ -37,19 +44,33 @@ impl Editor {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
             // by default, it will print to io buffer
-            Key::Char(c) => print!("{}\r", c as u8),
-            // two hack ways to flush, more standardly should directly call `stdout().flush()`
-            // Key::Char(c) => print!("{}\n", c as u8),
-            // Key::Char(c) => println!("{}", c as u8),
+            // Key::Char(c) => print!("{}\r", c as u8),
+            Key::Char('h') | Key::Char('j') | Key::Char('k') | Key::Char('l') => {
+                self.move_cursor(pressed_key)
+            }
             Key::Ctrl('q') => self.should_quit = true,
             _ => (),
         }
         Ok(())
     }
 
+    fn move_cursor(&mut self, key: Key) {
+        let Position { mut x, mut y } = self.cursor_position;
+        // TODO: left and down bound
+        match key {
+            Key::Char('h') => x = x.saturating_sub(1),
+            Key::Char('j') => y = y.saturating_add(1),
+            Key::Char('k') => y = y.saturating_sub(1),
+            Key::Char('l') => x = x.saturating_add(1),
+            _ => (),
+        }
+        self.cursor_position = Position { x, y };
+    }
+
+    // update cursor position
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
-        Terminal::cursor_position(0, 0);
+        Terminal::cursor_position(&Position { x: 0, y: 0 });
 
         if self.should_quit {
             Terminal::clear_screen();
@@ -57,7 +78,7 @@ impl Editor {
         } else {
             // clear and redraw
             self.draw_rows(self.terminal.size().height as usize);
-            Terminal::cursor_position(0, 0);
+            Terminal::cursor_position(&self.cursor_position);
         }
         Terminal::cursor_show();
         Terminal::flush()
