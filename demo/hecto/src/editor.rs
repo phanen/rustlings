@@ -18,6 +18,7 @@ pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
     cursor_position: Position,
+    offset: Position,
     document: Document,
 }
 
@@ -56,12 +57,14 @@ impl Editor {
             should_quit: false,
             terminal: Terminal::default().expect("failed to init terminal"),
             cursor_position: Position::default(),
+            offset: Position::default(),
             document,
         }
     }
 
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
         let pressed_key = Terminal::read_key()?;
+        // update cursor
         match pressed_key {
             // by default, it will print to io buffer
             // Key::Char(c) => print!("{}\r", c as u8),
@@ -76,7 +79,28 @@ impl Editor {
             Key::Ctrl('q') => self.should_quit = true,
             _ => (),
         }
+        // scroll or not based on cursor position
+        self.scroll();
         Ok(())
+    }
+
+    fn scroll(&mut self) {
+        let Position { x, y } = self.cursor_position;
+        let size = self.terminal.size();
+        let height = size.height as usize;
+        let width = size.width as usize;
+
+        let offset = &mut self.offset;
+        if y < offset.y {
+            offset.y = y;
+        } else if y >= offset.y.saturating_add(height) {
+            offset.y = y.saturating_sub(height);
+        }
+        if x < offset.x {
+            offset.x = x;
+        } else if x >= offset.x.saturating_add(width) {
+            offset.x = x.saturating_sub(width);
+        }
     }
 
     fn move_cursor(&mut self, key: Key) {
@@ -127,8 +151,9 @@ impl Editor {
     }
 
     fn draw_row(&self, row: &Row) {
-        let start = 0;
-        let end = self.terminal.size().width as usize;
+        let start = self.offset.x;
+        let width = self.terminal.size().width as usize;
+        let end = self.offset.x + width;
         let row = row.render(start, end);
         println!("{}\r", row);
     }
@@ -148,7 +173,7 @@ impl Editor {
 
         for row_id in 0..rows - 1 {
             Terminal::clear_current_line();
-            if let Some(row) = self.document.row(row_id) {
+            if let Some(row) = self.document.row(self.offset.y + row_id) {
                 self.draw_row(row)
             } else {
                 println!("~\r");
