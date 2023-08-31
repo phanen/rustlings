@@ -75,8 +75,8 @@ impl Editor {
             | Key::Char('j')
             | Key::Char('k')
             | Key::Char('l')
-            | Key::Char('H')
-            | Key::Char('L')
+            | Key::Ctrl('u')
+            | Key::Ctrl('d')
             | Key::Char('^')
             | Key::Char('$') => self.move_cursor(pressed_key),
             Key::Ctrl('q') => self.should_quit = true,
@@ -118,6 +118,7 @@ impl Editor {
         // let height = size.height.saturating_sub(1) as usize;
         // let width = size.width.saturating_sub(1) as usize;
         let height = self.document.len();
+        let t_height = self.terminal.size().height as usize;
         let mut width = if let Some(row) = self.document.row(y) {
             row.len()
         } else {
@@ -127,18 +128,24 @@ impl Editor {
         match key {
             Key::Char('h') => x = x.saturating_sub(1),
             Key::Char('j') => {
-                if y < height {
+                if y < height - 1 {
                     y = y.saturating_add(1);
                 }
             }
             Key::Char('k') => y = y.saturating_sub(1),
             Key::Char('l') => {
-                if x < width {
+                if width > 0 && x < width - 1 {
                     x = x.saturating_add(1);
                 }
             }
-            Key::Char('H') => y = 0,
-            Key::Char('L') => y = height - 1,
+            Key::Ctrl('u') => y = if y > t_height { y - t_height } else { 0 },
+            Key::Ctrl('d') => {
+                y = if y.saturating_add(t_height) < height - 1 {
+                    y + t_height as usize
+                } else {
+                    height - 1
+                }
+            }
             Key::Char('^') => x = 0,
             Key::Char('$') => x = width,
             _ => (),
@@ -150,8 +157,9 @@ impl Editor {
         } else {
             0
         };
-        if x > width {
-            x = width
+
+        if width > 0 && x > width - 1 {
+            x = width - 1
         }
 
         self.cursor_position = Position { x, y };
