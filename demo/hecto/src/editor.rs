@@ -178,12 +178,16 @@ impl Editor {
         Terminal::flush()
     }
 
-    fn draw_row(&self, row: &Row) {
+    fn draw_row(&self, row: &Row, no_break: bool) {
         let start = self.offset.x;
         let width = self.terminal.size().width as usize;
         let end = self.offset.x + width;
         let row = row.render(start, end);
-        println!("{}\r", row);
+        if (no_break) {
+            print!("{}\r", row);
+        } else {
+            println!("{}\r", row);
+        }
     }
 
     // clear and redraw
@@ -203,7 +207,7 @@ impl Editor {
             Terminal::clear_current_line();
 
             if let Some(row) = self.document.row(self.offset.y.saturating_add(row_id)) {
-                self.draw_row(row)
+                self.draw_row(row, row_id == rows - 1);
             } else {
                 if row_id == rows - 1 {
                     print!("~\r");
