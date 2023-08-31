@@ -208,7 +208,7 @@ impl Editor {
         let width = self.terminal.size().width as usize;
         let end = self.offset.x + width;
         let row = row.render(start, end);
-        if (no_break) {
+        if no_break {
             print!("{}\r", row);
         } else {
             println!("{}\r", row);
