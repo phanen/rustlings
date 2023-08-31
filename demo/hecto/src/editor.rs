@@ -126,7 +126,19 @@ impl Editor {
         };
 
         match key {
-            Key::Char('h') => x = x.saturating_sub(1),
+            Key::Char('h') => {
+                if x > 0 {
+                    x -= 1;
+                } else if y > 0 {
+                    // linewrap back
+                    y -= 1;
+                    if let Some(row) = self.document.row(y) {
+                        x = row.len();
+                    } else {
+                        x = 0;
+                    }
+                }
+            }
             Key::Char('j') => {
                 if y < height - 1 {
                     y = y.saturating_add(1);
@@ -134,7 +146,12 @@ impl Editor {
             }
             Key::Char('k') => y = y.saturating_sub(1),
             Key::Char('l') => {
-                if width > 0 && x < width - 1 {
+                if x == width {
+                    if y < height {
+                        y += 1;
+                        x = 0;
+                    }
+                } else if x < width {
                     x = x.saturating_add(1);
                 }
             }
@@ -158,8 +175,8 @@ impl Editor {
             0
         };
 
-        if width > 0 && x > width - 1 {
-            x = width - 1
+        if x > width {
+            x = width
         }
 
         self.cursor_position = Position { x, y };
