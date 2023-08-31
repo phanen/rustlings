@@ -1,6 +1,7 @@
 use crate::Position;
 
 use std::io::{self, stdout, Write};
+use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::{IntoRawMode, RawTerminal};
@@ -22,7 +23,8 @@ impl Terminal {
         Ok(Self {
             size: Size {
                 width: size.0,
-                height: size.1,
+                // left 2 lines, for status bar and message bar
+                height: size.1.saturating_sub(2),
             },
             _stdout: stdout().into_raw_mode()?,
         })
@@ -47,7 +49,7 @@ impl Terminal {
     }
 
     pub fn cursor_position(position: &Position) {
-        let Position { mut x, mut y } = position;
+        let Position { x, y } = position;
         let x = x.saturating_add(1);
         let y = y.saturating_add(1);
         print!("{}", termion::cursor::Goto(x as u16, y as u16));
@@ -66,5 +68,13 @@ impl Terminal {
                 return key;
             }
         }
+    }
+
+    pub fn set_bg_color(color: color::Rgb) {
+        print!("{}", color::Bg(color));
+    }
+
+    pub fn reset_bg_color() {
+        print!("{}", color::Bg(color::Reset));
     }
 }

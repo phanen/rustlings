@@ -3,8 +3,10 @@ use crate::Row;
 use crate::Terminal;
 
 use std::env;
+use termion::color;
 use termion::event::Key;
 
+const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239);
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[derive(Default)]
@@ -147,7 +149,7 @@ impl Editor {
             Key::Char('k') => y = y.saturating_sub(1),
             Key::Char('l') => {
                 if x == width {
-                    if y < height {
+                    if y < height - 1 {
                         y += 1;
                         x = 0;
                     }
@@ -193,6 +195,8 @@ impl Editor {
         } else {
             // clear and redraw (make a absoulte cursor pos)
             self.draw_rows(self.terminal.size().height as usize);
+            self.draw_status_bar();
+            self.draw_msg_bar();
             // transform absoulte cursor pos back to relative cursor pos
             Terminal::cursor_position(&Position {
                 x: self.cursor_position.x.saturating_sub(self.offset.x),
@@ -208,11 +212,11 @@ impl Editor {
         let width = self.terminal.size().width as usize;
         let end = self.offset.x + width;
         let row = row.render(start, end);
-        if no_break {
-            print!("{}\r", row);
-        } else {
-            println!("{}\r", row);
-        }
+        // if no_break {
+        //     print!("{}\r", row);
+        // } else {
+        println!("{}\r", row);
+        // }
     }
 
     // clear and redraw
@@ -241,6 +245,16 @@ impl Editor {
                 }
             }
         }
+    }
+
+    fn draw_status_bar(&self) {
+        let spaces = " ".repeat(self.terminal.size().width as usize);
+        Terminal::set_bg_color(STATUS_BG_COLOR);
+        println!("{}\r", spaces);
+        Terminal::reset_bg_color();
+    }
+    fn draw_msg_bar(&self) {
+        Terminal::clear_current_line();
     }
 
     fn draw_welcome_msg(&self, line_width: usize) {
